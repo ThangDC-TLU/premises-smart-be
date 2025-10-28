@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: premises-smart-be
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/premises_db
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+app:
+  jwt:
+    secret: "2f3d6a94b8e14e5cbb9a4c6e83ad9f02f63c7a1bdb88a55c741c28f4e5f6d930"
+    expiration: 86400000   # th?i gian h?t h?n access token (ms) -> 1 ngày
+    refresh-expiration: 604800000  # 7 ngày (ms)
+
+server:
+  port: 8080
