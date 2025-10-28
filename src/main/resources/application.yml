@@ -18,6 +18,12 @@ app:
     secret: "jAMjZGnJMNn3TQygRghqXbrn6pDMR/NUqRrNsSTAjpgBIxrn2aZUZxMPkUw4AxBAi3U10k7AK2wnBccVVh5Xpw=="
     expiration: 86400           # 24 gi?
     refresh-expiration: 604800  # 7 ngày (n?u còn dùng ch? khác)
+  admin:
+    email: thangdc.tech@gmail.com
+    password: 123456
+    full-name: System Admin
+    phone: "0912345678"
+
 
 
 server:
