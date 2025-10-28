@@ -15,9 +15,10 @@ spring:
 
 app:
   jwt:
-    secret: "2f3d6a94b8e14e5cbb9a4c6e83ad9f02f63c7a1bdb88a55c741c28f4e5f6d930"
-    expiration: 86400000   # th?i gian h?t h?n access token (ms) -> 1 ngày
-    refresh-expiration: 604800000  # 7 ngày (ms)
+    secret: "jAMjZGnJMNn3TQygRghqXbrn6pDMR/NUqRrNsSTAjpgBIxrn2aZUZxMPkUw4AxBAi3U10k7AK2wnBccVVh5Xpw=="
+    expiration: 86400           # 24 gi?
+    refresh-expiration: 604800  # 7 ngày (n?u còn dùng ch? khác)
+
 
 server:
   port: 8080
