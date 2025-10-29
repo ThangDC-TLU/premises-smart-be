@@ -1,5 +1,6 @@
 package com.badmintonhub.premisessmartbe.controller;
 
+import com.badmintonhub.premisessmartbe.dto.ChangePasswordRequest;
 import com.badmintonhub.premisessmartbe.dto.ReqLoginDTO;
 import com.badmintonhub.premisessmartbe.dto.ResLoginDTO;
 import com.badmintonhub.premisessmartbe.entity.Role;
@@ -9,7 +10,9 @@ import com.badmintonhub.premisessmartbe.utils.SecurityUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -66,4 +69,26 @@ public class AuthController {
 
         return ResponseEntity.ok(resLoginDTO);
     }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            @RequestBody @Valid ChangePasswordRequest req,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        String email = jwt.getSubject(); // lấy email từ token
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return ResponseEntity.status(404).body("Không tìm thấy người dùng!");
+        }
+
+        if (!passwordEncoder.matches(req.getOldPassword(), user.getPassword())) {
+            return ResponseEntity.status(401).body("Mật khẩu cũ không chính xác!");
+        }
+
+        user.setPassword(passwordEncoder.encode(req.getNewPassword()));
+        userRepository.save(user);
+
+        return ResponseEntity.ok("Đổi mật khẩu thành công!");
+    }
+
 }
