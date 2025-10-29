@@ -1,5 +1,6 @@
 package com.badmintonhub.premisessmartbe.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,9 +24,7 @@ public class Premises {
     private Double areaM2;
     private String businessType;
 
-    private String address;
-    private String district;
-    private String city;
+    private String locationText;
 
     private Double latitude;
     private Double longitude;
@@ -39,7 +38,8 @@ public class Premises {
     private String coverImage; // ảnh đại diện
 
     // Nếu muốn ràng buộc user đăng tin:
-     @ManyToOne(fetch = FetchType.LAZY)
-     @JoinColumn(name = "user_id")
-     private User user;
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 }

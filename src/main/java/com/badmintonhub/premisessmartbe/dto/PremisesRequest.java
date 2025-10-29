@@ -16,9 +16,7 @@ public class PremisesRequest {
     private Double areaM2;
     private String businessType;
 
-    private String address;
-    private String district;
-    private String city;
+    private String locationText;
 
     private Double latitude;
     private Double longitude;

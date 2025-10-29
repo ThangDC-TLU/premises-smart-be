@@ -5,7 +5,6 @@ import com.badmintonhub.premisessmartbe.entity.Premises;
 import com.badmintonhub.premisessmartbe.service.PremisesService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,20 +24,13 @@ public class PremisesController {
     public ResponseEntity<Premises> create(@RequestBody PremisesRequest req,
                                            @AuthenticationPrincipal Jwt jwt) {
         String email = jwt.getSubject();
-        Premises created = service.createPremises(req, email);
+       Premises created = service.createPremises(req, email);
         return ResponseEntity.ok(created);
     }
-
 
     @GetMapping
     public ResponseEntity<List<Premises>> getAll() {
         return ResponseEntity.ok(service.getAll());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Premises> getById(@PathVariable Long id) {
-        Premises p = service.getById(id);
-        return p == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(p);
     }
 
     @DeleteMapping("/{id}")

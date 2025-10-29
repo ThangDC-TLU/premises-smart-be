@@ -1,3 +1,4 @@
+// src/main/java/com/badmintonhub/premisessmartbe/service/PremisesService.java
 package com.badmintonhub.premisessmartbe.service;
 
 import com.badmintonhub.premisessmartbe.dto.PremisesRequest;
@@ -5,19 +6,22 @@ import com.badmintonhub.premisessmartbe.entity.Premises;
 import com.badmintonhub.premisessmartbe.entity.User;
 import com.badmintonhub.premisessmartbe.repository.PremisesRepository;
 import com.badmintonhub.premisessmartbe.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
+
 @Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class PremisesService {
+
     private final PremisesRepository repository;
     private final UserRepository userRepository;
 
-    public PremisesService(PremisesRepository repository, UserRepository userRepository) {
-        this.repository = repository;
-        this.userRepository = userRepository;
-    }
-
+    @Transactional
     public Premises createPremises(PremisesRequest req, String ownerEmail) {
         User owner = userRepository.findByEmail(ownerEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -28,28 +32,26 @@ public class PremisesService {
                 .price(req.getPrice())
                 .areaM2(req.getAreaM2())
                 .businessType(req.getBusinessType())
-                .address(req.getAddress())
-                .district(req.getDistrict())
-                .city(req.getCity())
+                .locationText(req.getLocationText())
                 .latitude(req.getLatitude())
                 .longitude(req.getLongitude())
                 .images(req.getImages())
                 .coverImage(req.getCoverImage())
-                .user(owner)                 // <-- gán owner từ JWT
+                .user(owner) // gán chủ tin
                 .build();
 
-        return repository.save(p);
+        Premises saved = repository.save(p);
+        return saved;
+    }
+
+
+
+    @Transactional
+    public void delete(Long id) {
+        repository.deleteById(id);
     }
 
     public List<Premises> getAll() {
         return repository.findAll();
-    }
-
-    public Premises getById(Long id) {
-        return repository.findById(id).orElse(null);
-    }
-
-    public void delete(Long id) {
-        repository.deleteById(id);
     }
 }
