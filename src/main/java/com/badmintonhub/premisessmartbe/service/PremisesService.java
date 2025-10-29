@@ -1,6 +1,7 @@
 // src/main/java/com/badmintonhub/premisessmartbe/service/PremisesService.java
 package com.badmintonhub.premisessmartbe.service;
 
+import com.badmintonhub.premisessmartbe.dto.ListingDetailDTO;
 import com.badmintonhub.premisessmartbe.dto.PremisesRequest;
 import com.badmintonhub.premisessmartbe.entity.Premises;
 import com.badmintonhub.premisessmartbe.entity.User;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 
@@ -44,6 +46,69 @@ public class PremisesService {
         return saved;
     }
 
+    // đổi key trong DB (fnb/retail/office) sang label hiển thị cho FE
+    private String toLabel(String key) {
+        if (key == null) return "Khác";
+        return switch (key.toLowerCase()) {
+            case "fnb" -> "F&B";
+            case "retail" -> "Bán lẻ";
+            case "office" -> "Văn phòng";
+            default -> key;
+        };
+    }
+
+
+    @Transactional(readOnly = true)
+    public ListingDetailDTO getDetail(Long id) {
+        Premises p = repository.findWithUserById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Premises not found: " + id));
+
+        String cover = p.getCoverImage();
+        if (cover == null && p.getImages() != null && !p.getImages().isEmpty()) {
+            cover = p.getImages().get(0);
+        }
+
+        return ListingDetailDTO.builder()
+                .id(p.getId())
+                .title(p.getTitle())
+                .price(p.getPrice())
+                .area_m2(p.getAreaM2())
+                .businessType(toLabel(p.getBusinessType()))
+                .address(p.getLocationText())
+                .rating(0.0)
+                .images(p.getImages())
+                .amenities(java.util.Collections.emptyList())
+                .description(p.getDescription())
+                .createdAt(null)
+                .latitude(p.getLatitude())
+                .longitude(p.getLongitude())
+                .coverImage(cover)
+                .owner(mapOwner(p.getUser()))  // ← map entity → DTO
+                .similar(java.util.Collections.emptyList())
+                .build();
+    }
+
+    private ListingDetailDTO.Owner mapOwner(User u) {
+        if (u == null) return null;
+
+        // Tùy tên field trong User của bạn. Ví dụ nếu User có:
+        // - getFullName() hoặc getName()
+        // - getPhone() hoặc getPhoneNumber()
+        // - getAvatarUrl() hoặc getAvatar()
+        String name   = safeFirstNonNull(u.getFullName());
+        String phone  = safeFirstNonNull(u.getPhone());
+
+        return ListingDetailDTO.Owner.builder()
+                .name(name)
+                .phone(phone)
+                .build();
+    }
+
+    @SafeVarargs
+    private static <T> T safeFirstNonNull(T... vals) {
+        for (T v : vals) if (v != null && !(v instanceof String s && s.isBlank())) return v;
+        return null;
+    }
 
 
     @Transactional
