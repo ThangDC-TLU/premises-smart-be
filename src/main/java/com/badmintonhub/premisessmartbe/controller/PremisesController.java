@@ -51,6 +51,23 @@ public class PremisesController {
         return similarService.findSimilar(id, limit);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Premises> updatePut(@PathVariable Long id,
+                                              @RequestBody PremisesRequest req,
+                                              @AuthenticationPrincipal Jwt jwt) {
+        Premises updated = service.updatePremises(id, req, jwt);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Premises> updatePatch(@PathVariable Long id,
+                                                @RequestBody PremisesRequest req,
+                                                @AuthenticationPrincipal Jwt jwt) {
+        // PATCH = merge non-null fields
+        Premises updated = service.updatePremises(id, req, jwt);
+        return ResponseEntity.ok(updated);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);

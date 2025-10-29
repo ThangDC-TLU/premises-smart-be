@@ -8,8 +8,11 @@ import com.badmintonhub.premisessmartbe.entity.User;
 import com.badmintonhub.premisessmartbe.repository.PremisesRepository;
 import com.badmintonhub.premisessmartbe.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -118,5 +121,52 @@ public class PremisesService {
 
     public List<Premises> getAll() {
         return repository.findAll();
+    }
+
+    @Transactional
+    public Premises updatePremises(Long id, PremisesRequest req, Jwt jwt) {
+        Premises p = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Premises not found: " + id));
+
+        // --- quyền sửa: chủ tin hoặc ADMIN
+        String editorEmail = jwt != null ? jwt.getSubject() : null;
+        boolean isOwner = p.getUser() != null
+                && editorEmail != null
+                && editorEmail.equalsIgnoreCase(p.getUser().getEmail());
+        boolean isAdmin = false;
+        if (jwt != null) {
+            var roles = jwt.getClaimAsStringList("roles");
+            if (roles != null) isAdmin = roles.stream().anyMatch(r -> r.equalsIgnoreCase("ADMIN"));
+            // fallback khi dùng scope/authorities khác
+            if (!isAdmin) {
+                var scope = jwt.getClaimAsString("scope");
+                isAdmin = scope != null && scope.contains("admin");
+            }
+        }
+        if (!(isOwner || isAdmin)) {
+            throw new AccessDeniedException("Bạn không có quyền sửa tin này");
+        }
+
+        // --- merge non-null fields
+        if (StringUtils.hasText(req.getTitle()))         p.setTitle(req.getTitle());
+        if (StringUtils.hasText(req.getDescription()))   p.setDescription(req.getDescription());
+        if (req.getPrice() != null)                      p.setPrice(req.getPrice());
+        if (req.getAreaM2() != null)                     p.setAreaM2(req.getAreaM2());
+        if (StringUtils.hasText(req.getBusinessType()))  p.setBusinessType(req.getBusinessType());
+        if (StringUtils.hasText(req.getLocationText()))  p.setLocationText(req.getLocationText());
+        if (req.getLatitude() != null)                   p.setLatitude(req.getLatitude());
+        if (req.getLongitude() != null)                  p.setLongitude(req.getLongitude());
+
+        // ảnh
+        if (req.getImages() != null)                     p.setImages(req.getImages());
+        if (StringUtils.hasText(req.getCoverImage()))    p.setCoverImage(req.getCoverImage());
+
+        // fallback cover nếu đang null
+        if (!StringUtils.hasText(p.getCoverImage())
+                && p.getImages() != null && !p.getImages().isEmpty()) {
+            p.setCoverImage(p.getImages().get(0));
+        }
+
+        return repository.save(p);
     }
 }
