@@ -22,7 +22,11 @@ public class Premises {
     private Long id;
 
     private String title;
+
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String description;
+
     private Double price;
     private Double areaM2;
     private String businessType;

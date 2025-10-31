@@ -43,7 +43,7 @@ public class SecurityConfiguration {
             CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
 
         String[] whiteList = {
-                "/", "/api/auth/**",
+                "/", "/api/auth/**","/api/superset/**","/api/premises/**", "/api/stats/**",
                 "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
                 "/actuator/health"
         };
@@ -54,7 +54,6 @@ public class SecurityConfiguration {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(whiteList).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/premises/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 // Đặt entry point ở đây để nếu request chưa auth và không thuộc whitelist thì trả 401
