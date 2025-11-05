@@ -2,6 +2,7 @@
 package com.badmintonhub.premisessmartbe.service;
 
 import com.badmintonhub.premisessmartbe.dto.ListingDetailDTO;
+import com.badmintonhub.premisessmartbe.dto.PremisesListItemDTO;
 import com.badmintonhub.premisessmartbe.dto.PremisesRequest;
 import com.badmintonhub.premisessmartbe.entity.Premises;
 import com.badmintonhub.premisessmartbe.entity.User;
@@ -77,12 +78,12 @@ public class PremisesService {
                 .price(p.getPrice())
                 .area_m2(p.getAreaM2())
                 .businessType(toLabel(p.getBusinessType()))
-                .address(p.getLocationText())
+                .locationText(p.getLocationText())
                 .rating(0.0)
                 .images(p.getImages())
                 .amenities(java.util.Collections.emptyList())
                 .description(p.getDescription())
-                .createdAt(null)
+                .createdAt(p.getCreatedAt())
                 .latitude(p.getLatitude())
                 .longitude(p.getLongitude())
                 .coverImage(cover)
@@ -121,6 +122,32 @@ public class PremisesService {
 
     public List<Premises> getAll() {
         return repository.findAll();
+    }
+
+    public List<PremisesListItemDTO> getAllForList() {
+        // Nếu dùng findAllWithUser() thì gọi hàm đó
+        return repository.findAll().stream().map(this::toListItem).toList();
+    }
+
+    private PremisesListItemDTO toListItem(Premises p) {
+        String ownerEmail = null;
+        if (p.getUser() != null) {
+            ownerEmail = p.getUser().getEmail();
+        }
+        return new PremisesListItemDTO(
+                p.getId(),
+                p.getTitle(),
+                p.getPrice(),
+                p.getAreaM2(),
+                p.getBusinessType(),
+                p.getLocationText(),
+                p.getLatitude(),
+                p.getLongitude(),
+                p.getCoverImage(),
+                p.getImages(),
+                p.getCreatedAt(),
+                ownerEmail
+        );
     }
 
     @Transactional

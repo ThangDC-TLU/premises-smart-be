@@ -14,6 +14,8 @@ public interface PremisesRepository extends JpaRepository<Premises, Long>, JpaSp
     @EntityGraph(attributePaths = "user")
     Optional<Premises> findWithUserById(Long id);
 
+    @EntityGraph(attributePaths = {"user"})
+    List<Premises> findAll();
     @Query("""
         select p from Premises p
         where p.id <> :id

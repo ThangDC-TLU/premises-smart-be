@@ -1,10 +1,7 @@
 // src/main/java/com/badmintonhub/premisessmartbe/controller/PremisesController.java
 package com.badmintonhub.premisessmartbe.controller;
 
-import com.badmintonhub.premisessmartbe.dto.ListingDetailDTO;
-import com.badmintonhub.premisessmartbe.dto.PremisesRequest;
-import com.badmintonhub.premisessmartbe.dto.PremisesSearchDTO;
-import com.badmintonhub.premisessmartbe.dto.PremisesSimilarDTO;
+import com.badmintonhub.premisessmartbe.dto.*;
 import com.badmintonhub.premisessmartbe.entity.Premises;
 import com.badmintonhub.premisessmartbe.service.PremisesSearchService;
 import com.badmintonhub.premisessmartbe.service.PremisesService;
@@ -42,8 +39,8 @@ public class PremisesController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Premises>> getAll() {
-        return ResponseEntity.ok(service.getAll());
+    public ResponseEntity<List<PremisesListItemDTO>> getAll() {
+        return ResponseEntity.ok(service.getAllForList());
     }
 
     @GetMapping("/{id}")
